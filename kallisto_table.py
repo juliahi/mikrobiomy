@@ -1,0 +1,114 @@
+
+
+
+import os
+
+import sys
+from Bio import Entrez
+from Bio import SeqIO
+
+
+
+def download_entrez(dirname, gis):
+
+    #define email for entrez login
+    db           = "nuccore"
+    Entrez.email = "julia.hermanizycka@gmail.com"
+
+    
+    #handle = Entrez.esearch( db=db,term=" ".join(accs),retmax=retmax )
+    #giList = Entrez.read(handle)['IdList']
+    
+    
+    filenames = []
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    
+    
+    for gid in gis:
+        name = dirname+'/'+gid+'.txt'
+        if not os.path.exists(name):
+            
+            
+            handle = Entrez.efetch(db=db, rettype="gb", id=gid, retmode = 'text', complexity=0, retmax=10**9)
+            record = handle.read() 
+            out = open(name, 'w')
+            out.write(record)
+            out.close()
+            #sys.stdout.write(handle.read())
+        filenames.append(name)
+    return filenames
+        
+
+
+
+def get_name(filename):
+        handle = open(filename)
+        record = SeqIO.read(handle, "genbank")
+        return (record.annotations['source'], '_'.join(record.annotations['taxonomy']))
+
+
+
+
+def make_table(dirs, cutoff, cuttype, outname):
+    gis = []
+    allgis = []
+    
+    for directory in dirs:
+        gis.append({})
+        with open(directory+"/abundance.tsv") as f:
+            f.readline() #header
+            for line in f:
+                name, _, _, est_counts, tpm = line.strip().split('\t') 
+                if cuttype == "est_counts":
+                    value = float(est_counts)
+                elif cuttype == "tpm":
+                    value = float(tpm)
+                
+                id = name.split('|')[1].split('.')[0]
+                gis[-1][id] = value
+                if value >= cutoff:
+                    allgis.append(id)
+        print directory, len(gis[-1])
+    
+    allgis = list(set(allgis))
+    allgis.sort(key=lambda x: sum([g[x] for g in gis if x in g ]), reverse=True)
+    
+    
+    filenames = download_entrez(result_dir+'/genbank', allgis)
+    
+    
+    with open(outname, "w") as f:
+        f.write('GI\tname\ttaxonomy')
+        for directory in dirs:
+            f.write('\t%s'%directory.split('/')[-1])
+        f.write('\n')
+        
+        for i, gid in enumerate(allgis):
+            name, taxonomy = get_name(filenames[i])
+            f.write('\t'.join([gid, name, taxonomy]))
+            for gdict in gis:
+                if gid in gdict:
+                    f.write('\t%d'%gdict[gid])
+                else:
+                    f.write('\t ')
+            f.write('\n')
+
+
+
+
+
+def main():
+    cutoff = 10000
+    cuttype = "est_counts" #lub "tpm"
+    
+    k=21
+    result_dir='/mnt/chr7/data/julia'
+    global result_dir
+    
+    outname = result_dir+("/kallisto_summary_%s_%d.tsv"%(cuttype, cutoff))
+    dirs = [result_dir+'/'+x for x in os.listdir(result_dir) if os.path.isdir(result_dir+'/'+x) and x.endswith('%d_out'%k)]
+    make_table(sorted(dirs), cutoff, cuttype, outname)
+    
+        
+main()
