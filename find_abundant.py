@@ -82,9 +82,20 @@ def select_gis(dirs, cutoff, cuttype, number):
 
 
 def main():
-    cutoff = 10000
-    cuttype = "est_counts" #lub "tpm"
-    number = 1 #number of possible probes not fulfilling cuttype >= cutoff -> suggested 0
+    parser = argparse.ArgumentParser(description='Select abundant genomes')
+    
+    parser.add_argument('-c', '--cutoff', type=float, required=True,
+                   help='cutoff')    
+    parser.add_argument('-n', '--number', type=int, required=True,
+                   help='number of samples that can miss the cutoff')
+    parser.add_argument('-t', '--type', type=choices("est_counts", "tpm"), required=True,
+                   help='which parameter to take as output')
+    
+    
+    args = parser.parse_args()
+    cutoff = args.cutoff
+    cuttype = args.type
+    number = args.number #number of possible probes not fulfilling cuttype >= cutoff -> suggested 0
     
     k=21
     result_dir='/mnt/chr7/data/julia'
