@@ -14,6 +14,8 @@ d = {}
 
 for line in open(id_list):
      fasta = glob.glob(dirname+'*/'+line.strip()+'.fna')[0]
+     if len(glob.glob(dirname+'*/'+line.strip()+'.fna')) > 1:
+         print glob.glob(dirname+'*/'+line.strip()+'.fna')
      name = open(fasta).readline()[1:].split('|')
      name = '|'.join(name[:-1]) + '|'
      d[line.strip()] = name 

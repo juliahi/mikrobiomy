@@ -2,8 +2,10 @@
 
 
 import os
-
+import argparse
 import sys
+
+
 from Bio import Entrez
 from Bio import SeqIO
 
@@ -88,7 +90,7 @@ def main():
                    help='cutoff')    
     parser.add_argument('-n', '--number', type=int, required=True,
                    help='number of samples that can miss the cutoff')
-    parser.add_argument('-t', '--type', type=choices("est_counts", "tpm"), required=True,
+    parser.add_argument('-t', '--type', choices=["est_counts", "tpm"], required=True,
                    help='which parameter to take as output')
     
     
@@ -104,7 +106,7 @@ def main():
     gis = select_gis(dirs, cutoff, cuttype, number)
     print len(gis), gis
     
-    outname = result_dir+("/selected_gis_%s_%d_%d.txt"%(cuttype, cutoff, number))
+    outname = result_dir+("/%s_%d_%d/selected_gis_%s_%d_%d.txt"%(cuttype, cutoff, number, cuttype, cutoff, number))
     with open(outname, 'w') as f:
         for g in gis:
             f.write(g+"\n")

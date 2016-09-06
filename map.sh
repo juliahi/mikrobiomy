@@ -6,14 +6,6 @@ DIR=/mnt/chr7/data/julia
 NAME=$1
 GIS=selected_gis_${NAME}.txt
 
-#cat $GIS | while read ID
-#do
-#	echo $ID
-#	for file in $DIR/Bacteria/*/$ID.fna; do
-#	    bowtie2-build $file  
-#	    
-#	done
-#done
 FILES=()
 mkdir -p $DIR/$NAME
 
@@ -37,8 +29,9 @@ echo ${FILES[@]}
 
 function join { local IFS="$1"; shift; echo "$*"; }
 
-#cd $DIR; $BOWTIEDIR/bowtie2-build -f `join , ${FILES[@]}` ${GIS/.txt/}
-
+if [ ! -f $DIR/$NAME/${GIS/.txt/}.1.bt2 ]; then
+     cd $DIR/$NAME; $BOWTIEDIR/bowtie2-build -f `join , ${FILES[@]}` ${GIS/.txt/}
+fi
 
 INDIR="/mnt/chr4/mikrobiomy-2/Wyniki_sekwencjonowania/demultiplexed"
 

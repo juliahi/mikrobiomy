@@ -16,7 +16,7 @@ if("--help" %in% args) {
                       outputfilename - csv output file with results
 		      outputfile2 - pdf with plots
 		      fittype - local or parametric
-		      N - for each sample 0 if untreated, 1 if treated  \n\n")
+		      N - for each sample 0 if untreated, 1 if treated, - if omit  \n\n")
                                    
                                     q(save="no", status=1)
 }
@@ -35,15 +35,18 @@ args <- args[5:length(args)]
 countTable = read.table( datafile, sep="\t", header=TRUE, row.names=1 )
 #print(countTable)
 
-if ((length(args) != length(colnames(countTable))) || (sum(args == "0") + sum(args == "1") != length(args))) {
+if ((length(args) != length(colnames(countTable))) || (sum(args == "0") + sum(args == "1") + sum(args == '-') != length(args))) {
     cat(" You need to specify if sample is treated (1) or untreated(0) for every sample ")
     q(save="no", status=1)
 }
 
+countTable[, args == '-'] <- NULL
+print(colnames(countTable))
+
 f <- function(x) {
     f <- ifelse(x=="0", "untreated", "treated")
 }
-condition <- sapply(args, f)
+condition <- sapply(args[args != '-'], f)
 n <- length(condition)
 
 

@@ -2,7 +2,7 @@
 
 
 import os
-
+import argparse
 import sys
 from Bio import Entrez
 from Bio import SeqIO
@@ -30,7 +30,7 @@ def download_entrez(dirname, gis):
         if not os.path.exists(name):
             
             
-            handle = Entrez.efetch(db=db, rettype="gb", id=gid, retmode = 'text', complexity=0, retmax=10**9)
+            handle = Entrez.efetch(db=db, rettype="gb", id=gid, retmode = 'text', complexity=3, retmax=10**9)
             record = handle.read() 
             out = open(name, 'w')
             out.write(record)
@@ -97,14 +97,26 @@ def make_table(dirs, cutoff, cuttype, outname):
 
 
 
-
 def main():
-    cutoff = 10000
-    cuttype = "est_counts" #lub "tpm"
+    parser = argparse.ArgumentParser(description='Select abundant genomes')
+    
+    parser.add_argument('-c', '--cutoff', type=float, required=True,
+                   help='cutoff')    
+    parser.add_argument('-n', '--number', type=int, required=True,
+                   help='number of samples that can miss the cutoff')
+    parser.add_argument('-t', '--type', choices=["est_counts", "tpm"], required=True,
+                   help='which parameter to take as output')
+    
+    
+    args = parser.parse_args()
+    cutoff = args.cutoff
+    cuttype = args.type
+    number = args.number #number of possible probes not fulfilling cuttype >= cutoff -> suggested 0
+    
     
     k=21
-    result_dir='/mnt/chr7/data/julia'
     global result_dir
+    result_dir='/mnt/chr7/data/julia'
     
     outname = result_dir+("/kallisto_summary_%s_%d.tsv"%(cuttype, cutoff))
     dirs = [result_dir+'/'+x for x in os.listdir(result_dir) if os.path.isdir(result_dir+'/'+x) and x.endswith('%d_out'%k)]
