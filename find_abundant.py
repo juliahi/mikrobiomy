@@ -92,6 +92,9 @@ def main():
                    help='number of samples that can miss the cutoff')
     parser.add_argument('-t', '--type', choices=["est_counts", "tpm"], required=True,
                    help='which parameter to take as output')
+    parser.add_argument('-k', '--k', type=int, required=True,
+                   help='k parameter of kallisto index')
+    
     
     
     args = parser.parse_args()
@@ -99,14 +102,15 @@ def main():
     cuttype = args.type
     number = args.number #number of possible probes not fulfilling cuttype >= cutoff -> suggested 0
     
-    k=21
+    k=args.k
+    
     result_dir='/mnt/chr7/data/julia'
     
     dirs = [result_dir+'/'+x for x in os.listdir(result_dir) if os.path.isdir(result_dir+'/'+x) and x.endswith('%d_out'%k)]
     gis = select_gis(dirs, cutoff, cuttype, number)
     print len(gis), gis
     
-    outname = result_dir+("/%s_%d_%d/selected_gis_%s_%d_%d.txt"%(cuttype, cutoff, number, cuttype, cutoff, number))
+    outname = result_dir+("/%s%d_%d_%d/selected_gis_%s%d_%d_%d.txt"%(cuttype, k, cutoff, number, cuttype, k, cutoff, number))
     with open(outname, 'w') as f:
         for g in gis:
             f.write(g+"\n")

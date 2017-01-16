@@ -82,7 +82,7 @@ def make_table(dirs, cutoff, cuttype, outname):
         f.write('GI\tname\ttaxonomy')
         for directory in dirs:
             f.write('\t%s'%directory.split('/')[-1])
-        f.write('\n')
+        f.write('\tid\n')
         
         for i, gid in enumerate(allgis):
             name, taxonomy = get_name(filenames[i])
@@ -104,6 +104,8 @@ def main():
                    help='cutoff')    
     parser.add_argument('-n', '--number', type=int, required=True,
                    help='number of samples that can miss the cutoff')
+    parser.add_argument('-k', '--k', type=int, required=True,
+                   help='k parameter of kallisto index')
     parser.add_argument('-t', '--type', choices=["est_counts", "tpm"], required=True,
                    help='which parameter to take as output')
     
@@ -114,11 +116,11 @@ def main():
     number = args.number #number of possible probes not fulfilling cuttype >= cutoff -> suggested 0
     
     
-    k=21
+    k=args.k
     global result_dir
     result_dir='/mnt/chr7/data/julia'
     
-    outname = result_dir+("/kallisto_summary_%s_%d.tsv"%(cuttype, cutoff))
+    outname = result_dir+("/kallisto_summary%d_%s_%d.tsv"%(k, cuttype, cutoff))
     dirs = [result_dir+'/'+x for x in os.listdir(result_dir) if os.path.isdir(result_dir+'/'+x) and x.endswith('%d_out'%k)]
     make_table(sorted(dirs), cutoff, cuttype, outname)
     

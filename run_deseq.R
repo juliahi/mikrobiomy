@@ -40,6 +40,7 @@ if ((length(args) != length(colnames(countTable))) || (sum(args == "0") + sum(ar
     q(save="no", status=1)
 }
 
+countTable[,] <- round(countTable[,])
 countTable[, args == '-'] <- NULL
 print(colnames(countTable))
 
