@@ -33,7 +33,7 @@ done
 NAME="deseq_${K2}"
 mkdir -p $DIR/$NAME
 echo "name" DIR/*_depl_kallisto_${K2}_out > $DIR/$NAME/counts.txt
-paste -d '\t' $DIR/names.txt $DIR/*_depl_kallisto_${K2}_out/est_counts.txt > $DIR/$NAME/counts.txt
+paste -d '\t' $DIR/names.txt $DIR/*_depl_kallisto_${K2}_out/est_counts.txt >> $DIR/$NAME/counts.txt
 
 
 
