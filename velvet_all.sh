@@ -3,8 +3,8 @@ K=31
 L=200 #lenght of contig
 
 
-#NAME="6685_04-06-2015_depl"
-NAME="all"
+NAME="6685_04-06-2015_depl"
+#NAME="all"
 
 
 OUTDIR=/mnt/chr4/mikrobiomy-2/velvet_${K}
@@ -27,6 +27,9 @@ INFILES1=`echo $INDIR/*depl_*`
 SUM=$OUTDIR/summary.txt
 python after_velvet.py -i $OUTDIR/stats.txt -o $OUTDIR/hists_$K.pdf -c 1 >> $SUM &
 Rscript velvet_kmer_distr.R $OUTDIR/stats.txt $OUTDIR/kmer_hists_$K.pdf &
+
+
+
 
 
 

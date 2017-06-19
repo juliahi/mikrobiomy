@@ -8,7 +8,7 @@ dirname="/mnt/chr7/data/julia/kallisto_stats/"
 
 
 for k in sys.argv[1:]:
-    
+    k = int(k) 
     name="6685_04-06-2015_depl"
     filename=dirname+name+("_kallisto_%d_out/stats.txt"%k)
 
@@ -47,15 +47,15 @@ for k in sys.argv[1:]:
     types += ["most transcripts"]*N
 
 
-    with open(dirname+name+"_%d_selected.fasta"%k, "w+") as output:
-        datadir = "/mnt/chr4/mikrobiomy-2/Wyniki_sekwencjonowania/demultiplexed/"
-        records = list(SeqIO.parse(datadir+name+"_1.fq", "fastq"))
-        for idx,typ in zip(selected,types): 
-            #records[idx].name += (' '+typ)
-            r = records[idx]
-            output.write( ">" + r.id + ' '+ typ+'\n')
-            output.write(str(r.seq) + '\n')
-            #SeqIO.write([records[idx]], output, "fasta")
+    #with open(dirname+name+"_%d_selected.fasta"%k, "w+") as output:
+    #    datadir = "/mnt/chr4/mikrobiomy-2/Wyniki_sekwencjonowania/demultiplexed/"
+    #    records = list(SeqIO.parse(datadir+name+"_1.fq", "fastq"))
+    #    for idx,typ in zip(selected,types): 
+    #        #records[idx].name += (' '+typ)
+    #        r = records[idx]
+    #        output.write( ">" + r.id + ' '+ typ+'\n')
+    #        output.write(str(r.seq) + '\n')
+    #        #SeqIO.write([records[idx]], output, "fasta")
 
     with open(dirname+name+'_selected.txt', "a+") as output: 
          output.write(str(selected)+'\n')

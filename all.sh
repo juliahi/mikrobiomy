@@ -64,6 +64,14 @@ python differential_abundance_aggregate.py  -t $OPTION -c $VALUE -n $MISS -k $K
 
 
 
+# Oases:
+sh oases_all.sh # robi kontigi
+sh kallisto_on_oases.sh 21 all mergedAssembly  #kallisto k=21
+sh kallisto_on_oases.sh 21 all all_31  #kallisto k=21
+sh kallisto_on_oases.sh 21 all all_31_conf  #kallisto k=21
+python compare_mappability.py
+
+sh bowtie_on_contigs.sh oases #bowtie
 
 
 
