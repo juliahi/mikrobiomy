@@ -1,7 +1,6 @@
 
 K=31
 L=200 #lenght of contig
-K2=$1
 
 
 NAME="6685_04-06-2015_depl"
@@ -11,7 +10,7 @@ NAME="6685_04-06-2015_depl"
 OUTDIR=/mnt/chr4/mikrobiomy-2/velvet_${K}
 INDIR=/mnt/chr4/mikrobiomy-2/Wyniki_sekwencjonowania/demultiplexed
 
-INFILES1=`echo $INDIR/*depl_*.gz`
+INFILES1=`echo $INDIR/*depl_*`
 
 ### assembly
 #velvet_1.2.10/velveth $OUTDIR/$NAME $K -fastq -shortPaired -separate $INFILES1  > $OUTDIR/$NAME.txt
@@ -21,8 +20,13 @@ INFILES1=`echo $INDIR/*depl_*.gz`
 #python after_velvet.py -i $OUTDIR/$NAME/stats.txt -o $OUTDIR/$NAME/hists.pdf -c 1
 
 
-#kallisto:
-#sh kallisto_on_velvet.sh $K2
+### index for kallisto
+#python select_contigs.py $OUTDIR/$NAME/contigs.fa $OUTDIR/$NAME/long_contigs_$L.fa $L
+
+
+SUM=$OUTDIR/summary.txt
+python after_velvet.py -i $OUTDIR/stats.txt -o $OUTDIR/hists_$K.pdf -c 1 >> $SUM &
+Rscript velvet_kmer_distr.R $OUTDIR/stats.txt $OUTDIR/kmer_hists_$K.pdf &
 
 
 
