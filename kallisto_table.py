@@ -50,7 +50,7 @@ def get_name(filename):
 
 
 
-def make_table(dirs, cutoff, cuttype, outname):
+def make_table(dirs, cutoff, cuttype, outname, miss):
     gis = []
     allgis = []
     
@@ -77,7 +77,6 @@ def make_table(dirs, cutoff, cuttype, outname):
     
     filenames = download_entrez(result_dir+'/genbank', allgis)
     
-    
     with open(outname, "w") as f:
         f.write('GI\tname\ttaxonomy')
         for directory in dirs:
@@ -94,6 +93,42 @@ def make_table(dirs, cutoff, cuttype, outname):
                     f.write('\t ')
             f.write('\n')
 
+    with open(outname+'.selected', "w") as f:
+        n=len(dirs)
+        f.write('GI\tname\ttaxonomy')
+        for directory in dirs:
+            f.write('\t%s'%directory.split('/')[-1])
+        f.write('\tid\n')
+        
+        for i, gid in enumerate(allgis):
+            
+            name, taxonomy = get_name(filenames[i])
+            counts=[]
+            for gdict in gis:
+                if gid in gdict:
+                    if gdict[gid] > cutoff:
+                        counts.append(gdict[gid])
+            if len(counts) >= n-miss:
+                f.write('\t'.join([gid, name, taxonomy]))
+                for val in counts:
+                    f.write('\t%d'%val)
+                f.write('\n')
+
+
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Select abundant genomes')
+    
+    parser.add_argument('-c', '--cutoff', type=float, required=True,
+                   help='cutoff')    
+    parser.add_argument('-n', '--number', type=int, required=True,
+                   help='number of samples that can miss the cutoff')
+    parser.add_argument('-k', '--k', type=int, required=True,
+                   help='k parameter of kallisto index')
+    parser.add_argument('-t', '--type', choices=["est_counts", "tpm"], required=True,
+                   help='which parameter to take as output')
+    
 
 
 
@@ -122,7 +157,7 @@ def main():
     
     outname = result_dir+("/kallisto_summary%d_%s_%d.tsv"%(k, cuttype, cutoff))
     dirs = [result_dir+'/'+x for x in os.listdir(result_dir) if os.path.isdir(result_dir+'/'+x) and x.endswith('%d_out'%k)]
-    make_table(sorted(dirs), cutoff, cuttype, outname)
+    make_table(sorted(dirs), cutoff, cuttype, outname, number)
     
         
 main()
