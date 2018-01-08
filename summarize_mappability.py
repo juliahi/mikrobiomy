@@ -63,7 +63,7 @@ def pd(key, d):
     else: return ",,"
 
 #for k in [21, 23, 25, 31]:
-for k in [13,25,31]:
+for k in [21,31]:
     dir1 = bacteria
     dir2a = velvet + name1 +"_"+str(k)+'/'
     #dir2b = velvet2 + name1 +"_"+str(k)+'/'
@@ -76,7 +76,7 @@ for k in [13,25,31]:
     dir4b = metavelvet2 + name1 + "_"+str(k)+'/'
     dir5 = megahit + name1 + "_"+str(k)+'/'
 
-    csv = open('/mnt/chr4/mikrobiomy-2/new_compare_%s_%d.csv'%(name1, k), 'a')
+    csv = open('/mnt/chr4/mikrobiomy-2/new_compare2_%s_%d.csv'%(name1, k), 'a')
     
     #csv.write(",CLARK Bacteria,,Velvet 31,,Oases Merged no covcut,,Oases Merged,,Oases k=31,,Oases k=31 confidence=1, Metavelvet 31,,Metavelvet 21,,Megahit\n")
     print "#kallisto k=", k#, dir1, dir2, dir3

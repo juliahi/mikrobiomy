@@ -76,7 +76,7 @@ python change_gff.py $NAME
 
 
 
-# # # # Zliczanie
+# # # # Zliczanie i różnicowa ekspresja w różnych zdefiniowanych grupach próbek
 bash htseq_and_deseq.sh $NAME
 
 

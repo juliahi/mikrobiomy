@@ -1,12 +1,12 @@
 
 #run after oases_all
 
-K1=21
+K1=31
 L=200 #contig length
 
 
-if [ $# -le 1 ]; then
-    echo "usage: kallisto_on_oases.sh kallisto_K NAME [subdir]" 
+if [ $# -le 2 ]; then
+    echo "usage: kallisto_on_metavelvet.sh kallisto_K NAME [subdir]" 
     exit
 fi
 
@@ -43,7 +43,6 @@ then
 	python select_contigs.py $OUTDIR/meta-velvetg.contigs.fa $OUTDIR/long_contigs_${L}.fa $L >> /dev/null
 
 	#KALLISTO="/home/julia/kallisto_linux-v0.43.0/kallisto"
-	#DIR=/mnt/chr4/mikrobiomy-2/kallisto_on_contigs/oases_${K1}_${K2}_$L
 	GENOMES_FILE=$OUTDIR/long_contigs_${L}.fa
 	echo "metavelvet $OUTDIR" >> $LOGFILE
 	$KALLISTO index -k $K -i $INDEX_FILE $GENOMES_FILE  2>> $LOGFILE
@@ -59,15 +58,15 @@ for file in $INDIR/*${TYPE}_1.fq.gz; do
     FILENAME=${file%_1.fq.gz}
     OUTNAME=$DIR/`basename ${FILENAME}`_kallisto_${K}_out
     echo $file
-    #if [ ! -f "$OUTNAME/abundance.h5" ];  then
-              #COMMAND1="$KALLISTO pseudo -i $INDEX_FILE -o ${OUTNAME}  --pseudobam ${file} ${FILENAME}_2.fq.gz > pseudoal.sam" 
-    #COMMAND1="$KALLISTO quant -i $INDEX_FILE -o ${OUTNAME} -b 100 ${file} ${FILENAME}_2.fq.gz 2>>$LOGFILE"
+    ########COMMAND1="$KALLISTO quant -i $INDEX_FILE -o ${OUTNAME} -b 100 ${file} ${FILENAME}_2.fq.gz 2>>$LOGFILE"
     LOGFILE=${OUTNAME}.log
     SAMFILE=${OUTNAME}.sam
     COMMAND1="$KALLISTO quant -i $INDEX_FILE -o ${OUTNAME} --pseudobam ${file} ${FILENAME}_2.fq.gz "
-    #COMMAND2="$KALLISTO h5dump -o ${OUTNAME}  ${OUTNAME}/abundance.h5 2>>${LOGFILE}"
-    $COMMAND1 2>>${LOGFILE} >${SAMFILE} &
+    ##############COMMAND2="$KALLISTO h5dump -o ${OUTNAME}  ${OUTNAME}/abundance.h5 2>>${LOGFILE}"
     
+    #$COMMAND1 2>>${LOGFILE} >${SAMFILE} &
+    
+
     licznik=$((licznik + 1))
     
     if [ $licznik -eq 4 ]; then
@@ -82,3 +81,13 @@ done
 #fi
 wait
 
+TYPE=depl
+#quantify
+for file in $INDIR/*${TYPE}_1.fq.gz; do
+    FILENAME=${file%_1.fq.gz}
+    OUTNAME=$DIR/`basename ${FILENAME}`_kallisto_${K}_out
+    samtools view -b ${OUTNAME}.sam > ${OUTNAME}_pseudoal.bam 
+
+    samtools sort -@ 2 ${OUTNAME}_pseudoal.bam -o ${OUTNAME}_pseudoal_sorted
+    samtools index ${OUTNAME}_pseudoal_sorted
+done

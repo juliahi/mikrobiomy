@@ -8,7 +8,7 @@ NAME="all"
 
 
 OUTDIR=/mnt/chr4/mikrobiomy-2/megahit_results
-INDIR=/mnt/chr4/mikrobiomy-2/Wyniki_sekwencjonowania/demultiplexed
+INDIR=/home/julia/Wyniki_sekwencjonowania
 
 mkdir -p $OUTDIR
 
@@ -30,6 +30,10 @@ LOG=$OUTDIR/$NAME.log
 #python select_contigs.py $OUTDIR/$NAME/final.contigs.fa $OUTDIR/$NAME/long_contigs_$L.fa $L
 #python fasta_to_stats.py $OUTDIR/$NAME/final.contigs.fa $OUTDIR/$NAME/stats.txt
 python summarize_assemblies.py megahit_results/$NAME/stats.txt 1
+
+
+
+
 
 wait
 

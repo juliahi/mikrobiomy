@@ -60,23 +60,18 @@ def plot_hist(data, cols, out):
     
 import sys
 def main():
-    #parser = argparse.ArgumentParser(description='Plot histogram')
-    
-    #parser.add_argument('-i', '--input', type=str, required=True,
-    #               help='input tsv')
-    #parser.add_argument('-c', '--columns', type=int, nargs='+', required=True,
-    #               help='columns')
-    #parser.add_argument('-o', '--output', type=str, required=True,
-    #               help='output file')
-    
-    #args = parser.parse_args()
+    #USAGE: without arguments - run for all samples from code
+    #        summarize_assembly.py STATSFILE_FROM_INDIR KMERLENGTH 
    
 
-    indir = "/mnt/chr4/mikrobiomy-2/"
-    sys.stdout = open(indir+'assembly_stats.txt', 'a+')
+    #
+    #sys.stdout = open(indir+'assembly_stats.txt', 'a+')
+    
     print '\t'.join(["name", "# contigs", 'sum',  "# zeros", "# 1", "median", "95 percentile", "max", "N50" ])
 
+    indir=''
     if len(sys.argv) == 1:
+        indir = "/mnt/chr4/mikrobiomy-2/"
         lista = [#('velvet_31/all/stats.txt', 31), #('velvet_21/all/stats.txt', 21),
             ('velvet_31_expcovauto/all/stats.txt', 31), 
             ('velvet_21_expcovauto/all/stats.txt', 21), 
@@ -88,7 +83,10 @@ def main():
     elif len(sys.argv) == 3:
         lista =[(sys.argv[1], int(sys.argv[2]))]
     for f,k in lista:
-        data = pandas.read_csv(indir+f, sep='\t', index_col=0)
+        try:
+            data = pandas.read_csv(f, sep='\t', index_col=0)
+        except Exception:
+            data = pandas.read_csv(indir+f, sep='\t', index_col=0)
         lengths = data['lgth'].apply(lambda x: x + k - 1 if x > 0 else 0)
         lengths = list(lengths)
         #print f
