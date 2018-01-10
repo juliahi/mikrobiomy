@@ -1,12 +1,13 @@
 K=$1 #max 31
 
 
-DIR=/mnt/chr7/data/julia
-OUTDIR=/mnt/chr7/data/julia/kallisto_stats
-INDEX_FILE=$DIR/kallisto_index_$K.idx
-GENOMES_FILE=$DIR/genomes.fasta
-#INDIR=/mnt/chr4/mikrobiomy-2/Wyniki_sekwencjonowania/demultiplexed
-INDIR=/home/julia/Wyniki_sekwencjonowania
+DIR=$OUTDIR
+OUTDIR=$OUTDIR/kallisto_stats
+
+INDEX_FILE=/mnt/chr7/julia/kallisto_index_$K.idx
+GENOMES_FILE=/mnt/chr7/julia/genomes.fasta
+
+
 
 LOGFILE=$OUTDIR/kallisto_${K}.log
 

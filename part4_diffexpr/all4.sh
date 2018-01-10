@@ -1,4 +1,5 @@
 
+source ~/venv/bin/activate
 
 OUTDIR=/mnt/chr4/mikrobiomy-2
 
