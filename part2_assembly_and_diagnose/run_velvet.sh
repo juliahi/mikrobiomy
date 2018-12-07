@@ -2,9 +2,12 @@
 K=$1
 L=$MINCONTIGLENGTH
 NAME=$2
-OUTDIR=$OUTDIR/velvet_${K}
+
+EXPNAME=velvet_${K}
+
+OUTDIR=$OUTDIR/$EXPNAME
 mkdir -p $OUTDIR
-INFILES1=`echo $INDIR/*depl_*`
+INFILES1=`echo $INDIR/*depl_?.fq.gz`
 ########### RUN VELVET ##################
 
 ~/velvet_1.2.10/velveth $OUTDIR/$NAME $K -fastq -shortPaired -separate $INFILES1  > $OUTDIR/$NAME.txt
@@ -18,6 +21,8 @@ SUM=$OUTDIR/summary.txt
 python get_seqlengths_from_fasta.py $OUTDIR/${NAME}/long_contigs_$L.fa $OUTDIR/${NAME}/longcontigs_stats.txt 
 
 echo " VELVET K=$K CONTIGS" >> $SUM
-python after_velvet.py -i $OUTDIR/${NAME}/longcontigs_stats.txt -o $OUTDIR/${NAME}/hists_longcontigs.pdf -c 1 >> $SUM
+python after_velvet.py -i $OUTDIR/${NAME}/longcontigs_stats.txt -o $OUTDIR/${NAME}/${EXPNAME}_hists_longcontigs.pdf -c 1 >> $SUM
 python summarize_assemblies.py $OUTDIR/$NAME/longcontigs_stats.txt 1
 
+
+cp $OUTDIR/${NAME}/${EXPNAME}_hists_longcontigs.pdf $OUTDIR/img/${EXPNAME}_hists_longcontigs.pdf

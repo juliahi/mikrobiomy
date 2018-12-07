@@ -22,13 +22,14 @@ def main():
                    help='input FASTA file')
     parser.add_argument('-o', '--output', type=str, required=True,
                    help='output file')
-    parser.add_argument('-t', '--type', type=str, choices=['w', 'e', 'a', 'c'], required=True,
+    parser.add_argument('-t', '--type', type=str, choices=['c'], required=True,
                    help='edgeR and Deseq or Wilcoxon selected, or selected by at least 2 methods')
     
     args = parser.parse_args()
     
     names = []
     minpv = None
+    longnames = []
 
 
     for filename in args.sequences:
@@ -38,19 +39,23 @@ def main():
                 ########### warunek
                 pvals = line.strip().split(',')
                 if len(pvals) < 5: continue
-                if minpv == None: minpv = float(pvals[5])
+                if minpv == None: minpv = float(pvals[6])
+                
+                name = pvals[0] + '_log2fold=' + pvals[5] + '_mean1=' + pvals[2] + '_mean2=' + pvals[3]
+                
                 if args.type == 'c':
                     if (int(pvals[-1]) >= 2) :
                         names.append(pvals[0])
-                if args.type == 'e':
-                    if (float(pvals[6]) <= 0.05) or (float(pvals[7]) <= 0.05):# or (float(pvals[6]) <= minpv):
-                        names.append(pvals[0])
-                if args.type == 'a':
-                    if (float(pvals[6]) <= 0.05) or (float(pvals[7]) <= 0.05) or (float(pvals[5]) <= minpv):
-                        names.append(pvals[0])
-                if args.type == 'w':
-                    if (float(pvals[6]) > 0.05) and (float(pvals[7]) > 0.05) and (float(pvals[5]) <= minpv):
-                        names.append(pvals[0])
+                        longnames.append(name)
+                #if args.type == 'e':
+                    #if (float(pvals[6]) <= 0.05) or (float(pvals[7]) <= 0.05):# or (float(pvals[6]) <= minpv):
+                        #names.append(name)
+                #if args.type == 'a':
+                    #if (float(pvals[6]) <= 0.05) or (float(pvals[7]) <= 0.05) or (float(pvals[5]) <= minpv):
+                        #names.append(name)
+                #if args.type == 'w':
+                    #if (float(pvals[6]) > 0.05) and (float(pvals[7]) > 0.05) and (float(pvals[5]) <= minpv):
+                        #names.append(name)
     #print names
     print len(names)
     d = {}
@@ -60,8 +65,8 @@ def main():
             d[sid] = seq
     
     with open(args.output, 'w+') as outfile: 
-        for name in names:
-            outfile.write('>'+name+'\n')
+        for name, longname in zip(names, longnames):
+            outfile.write('>'+longname+'\n')
             outfile.write(d[name]+'\n')
             
              

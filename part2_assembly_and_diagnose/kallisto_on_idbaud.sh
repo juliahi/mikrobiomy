@@ -1,36 +1,24 @@
-
-#run after oases_all
-
-K1=31
-L=200 #contig length
-
-
-if [ $# -le 2 ]; then
-    echo "usage: kallisto_on_metavelvet.sh kallisto_K NAME [subdir]" 
-    exit
-fi
+#run after velvet_all.sh run_velvet.sh
 
 
 
-
-NAME=$2
-
-#NAME="all"
-#NAME="6685_04-06-2015_depl"
-
+L=200 #lenght of contig
 K=$1
 
-OUTDIR=/mnt/chr4/mikrobiomy-2/metavelvet_${K1}/$NAME
-INDIR=/mnt/chr4/mikrobiomy-2/Wyniki_sekwencjonowania/demultiplexed
-
-LOG=$OUTDIR/logging.txt
+NAME="all"
 
 
-echo $OUTDIR, kallisto k=$K
+OUTDIR=/mnt/chr4/mikrobiomy-2/megahit_results/$NAME
+INDIR=/home/julia/Wyniki_sekwencjonowania
+
+INFILES1=`echo $INDIR/*depl_*.gz`
+### index for kallisto
+python select_contigs.py $OUTDIR/final.contigs.fa $OUTDIR/long_contigs_$L.fa $L
 
 
 
-####### mapping kallisto
+
+
 
 DIR=$OUTDIR/kallisto_on_contigs_$L/${NAME}_$K
 INDEX_FILE=$DIR/kallisto_index_${K}.idx
@@ -40,18 +28,22 @@ KALLISTO="/home/julia/kallisto_kod/src/kallisto"
 mkdir -p $DIR
 if [ ! -f  $INDEX_FILE ]
 then 
-	python select_contigs.py $OUTDIR/meta-velvetg.contigs.fa $OUTDIR/long_contigs_${L}.fa $L >> /dev/null
+        echo "building index"
+	python select_contigs.py $OUTDIR/final.contigs.fa $OUTDIR/long_contigs_$L.fa $L
 
 	#KALLISTO="/home/julia/kallisto_linux-v0.43.0/kallisto"
 	GENOMES_FILE=$OUTDIR/long_contigs_${L}.fa
-	echo "metavelvet $OUTDIR" >> $LOGFILE
+	echo "megahit $OUTDIR" >> $LOGFILE
 	$KALLISTO index -k $K -i $INDEX_FILE $GENOMES_FILE  2>> $LOGFILE
 
 	echo "index prepared"
 fi
 
+
+
+#mapping
+
 TYPE=depl
-#quantify
 
 licznik=0
 for file in $INDIR/*${TYPE}_1.fq.gz; do
@@ -64,12 +56,12 @@ for file in $INDIR/*${TYPE}_1.fq.gz; do
     COMMAND1="$KALLISTO quant -i $INDEX_FILE -o ${OUTNAME} --pseudobam ${file} ${FILENAME}_2.fq.gz "
     ##############COMMAND2="$KALLISTO h5dump -o ${OUTNAME}  ${OUTNAME}/abundance.h5 2>>${LOGFILE}"
     
-    #$COMMAND1 2>>${LOGFILE} >${SAMFILE} &
+    $COMMAND1 2>>${LOGFILE} >${SAMFILE} &
     
 
     licznik=$((licznik + 1))
     
-    if [ $licznik -eq 4 ]; then
+    if [ $licznik -eq 5 ]; then
         wait
         licznik=0
     fi
@@ -81,6 +73,7 @@ done
 #fi
 wait
 
+
 TYPE=depl
 #quantify
 for file in $INDIR/*${TYPE}_1.fq.gz; do
@@ -91,3 +84,6 @@ for file in $INDIR/*${TYPE}_1.fq.gz; do
     samtools sort -@ 2 ${OUTNAME}_pseudoal.bam -o ${OUTNAME}_pseudoal_sorted
     samtools index ${OUTNAME}_pseudoal_sorted
 done
+
+
+

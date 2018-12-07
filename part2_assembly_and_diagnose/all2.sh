@@ -1,14 +1,17 @@
 
+#source ~/venv/bin/activate
 
-source ~/venv/bin/activate
-
-
-export OUTDIR=/mnt/chr4/mikrobiomy-2/results
+#export OUTDIR=/mnt/chr4/mikrobiomy-2/results
+export OUTDIR=/home/julia/mikrobiomy_results
 export INDIR=/home/julia/Wyniki_sekwencjonowania
+#export INDIR=/home/julia/Wyniki_sekwencjonowania/depl_filtered
 export MINCONTIGLENGTH=200
+
+mkdir -p $OUTDIR/img
 
 ################# Modify kallisto to diagnose ###############
 ## Prepare genone
+##DIR=/mnt/chr7/julia
 ##for file in $DIR/Bacteria/*/*.fna; do
 ##	cat $file >> $GENOMES_FILE
 ##done
@@ -38,31 +41,39 @@ export MINCONTIGLENGTH=200
 
 
 
-
 ################ De-novo assembly #####################################
 
 #### VELVET ####
-echo `date` "running velvet"
-cat run_velvet.sh 
-sh run_velvet.sh 21 all 
-sh run_velvet.sh 25 all 
-sh run_velvet.sh 31 all 
-wait
+#echo `date` "running velvet with run_velvet.sh"
+#cat run_velvet.sh 
+#sh run_velvet.sh 21 all 
+##sh run_velvet.sh 25 all 
+#sh run_velvet.sh 31 all 
+#wait
+
+#sh kallisto_on_assembly.sh 21 velvet_21 all
+#sh kallisto_on_assembly.sh 21 velvet_31 all &
 
 
+#### OASES ####
+#echo `date` "running oases with run_oases.sh"
+#cat run_oases.sh 
+#sh run_oases.sh 31 21 all 
+
+#sh kallisto_on_assembly.sh 21 oases_31_21 "all/mergedAssembly"
+#wait
 
 
+##### METAVELVET #########
 
-##mapping to assemblied transcripts (VELVET) with k=21
-#sh kallisto_on_velvet.sh 21 velvet_31 all
-#sh kallisto_on_velvet.sh 31 velvet_31 all
+#sh run_metavelvet.sh 21 all &
+#sh run_metavelvet.sh 31 all &
 
-#velvet31 no expcovauto
-#python why_not_mapping.py $OUTDIR/velvet_31/all/kallisto_on_contigs_200/all_21 $OUTDIR/not_mapping_velvet  21
-#python why_not_mapping.py $OUTDIR/velvet_31/all/kallisto_on_contigs_200/all_31 $OUTDIR/not_mapping_velvet31  31
+#sh kallisto_on_assembly.sh 21 metavelvet_21 "all"
+#sh kallisto_on_assembly.sh 21 metavelvet_31 "all"
 
-#sh diffexpr_all.sh 21 velvet_31 all
-####sh diffexpr_all.sh 31 velvet_31 all
+##sh diffexpr_all.sh 21 metavelvet_31 all
+
 
 #### VELVET plain -- default settings ####
 #sh run_velvet_plain.sh 31 all 
@@ -70,61 +81,27 @@ wait
 #python why_not_mapping.py $OUTDIR/velvet_31_plain/all/kallisto_on_contigs_200/all_21 $OUTDIR/not_mapping_velvet31_plain  21
 #sh diffexpr_all.sh 21 velvet_31_plain all
 
-##### METAVELVET #########
-#...
-
-#sh run_metavelvet.sh 21 all &
-#sh run_metavelvet.sh 31 all &
 
 
-####metavelvet=velvet31_expcovauto
-#python why_not_mapping.py $OUTDIR/metavelvet_31/all/kallisto_on_contigs_200/all_21 $OUTDIR/not_mapping_metavelvet31_21  21 
-#python why_not_mapping.py $OUTDIR/metavelvet_31/all/kallisto_on_contigs_200/all_31 $OUTDIR/not_mapping_metavelvet31_31  31
-
-
-#sh diffexpr_all.sh 21 metavelvet_31 all
-###sh diffexpr_all.sh 31 metavelvet_31 all
-
-
-
-
-
-
-
-########3 Megahit ##########
-
-
+######## Megahit ##########
 
 #sh megahit_all.sh  &
 
 #sh kallisto_on_megahit.sh 21
-#python why_not_mapping.py $OUTDIR/megahit_results/all/kallisto_on_contigs_200/all_21 $OUTDIR/not_mapping_megahit  21
 #sh diffexpr_all.sh 21 megahit_results all
 
+
+####### IDBA-UD ##########
+
+sh idbaud_all.sh
+
+sh kallisto_on_assembly.sh 21 idba_ud all
+##sh diffexpr_all.sh 21 idba_ud all
 
 
 
 
 #mappability - Venn diagrams how many reads mappable for every sample and for all
 #python compare_mappability.py
-
-####################### de-novo assemblies ##################################
-
-
-# to contigs
-
-
-#oases
-#python why_not_mapping.py $OUTDIR/oases_31_21/all_covcut/mergedAssembly/kallisto_on_contigs_200/all*_21 $OUTDIR/not_mapping_oases  13 21 25 31
-#python why_not_mapping.py $OUTDIR/oases_31_21/all_covcut/all_31/kallisto_on_contigs_200/all*_21 $OUTDIR/not_mapping_oases_31  13 21 25 31
-#python why_not_mapping.py $OUTDIR/oases_31_21/all_covcut/all_31_conf/kallisto_on_contigs_200/all*_21 $OUTDIR/not_mapping_oases_31_conf  13 21 25 31
-
-
-
-############## Summarize assemblies etc: ##########################
-
-#table of mappability (unique), not mapped by k-mers, not mapped by conflicts etc.
-# results in chr4/not_mapping_name*.tsv, .tex
-#python why_not_mapping.py 13 21 25 31
 
 

@@ -1,9 +1,27 @@
 
+
 source ~/venv/bin/activate
 
-OUTDIR=/mnt/chr4/mikrobiomy-2
+
+export OUTDIR=/mnt/chr7/data/julia2/results_filtered
+#export INDIR=/home/julia/Wyniki_sekwencjonowania
+export INDIR=/home/julia/Wyniki_sekwencjonowania/depl_filtered
+export MINCONTIGLENGTH=200
+
+mkdir -p $OUTDIR/img
+
+
+##### Preprocessing
+#sh ../read_preprocessing.sh
+
+
 
 ################# Modify kallisto to diagnose ###############
+## Prepare genone
+##for file in $DIR/Bacteria/*/*.fna; do
+##	cat $file >> $GENOMES_FILE
+##done
+
 
 ## see why not mapping - write stats to chr7/kallisto_stats/probename_out/stats.txt
 
@@ -13,10 +31,7 @@ OUTDIR=/mnt/chr4/mikrobiomy-2
 #sh kallisto_with_stats.sh 31
 
 ## why not mapping to Genomes -- result in $OUTDIR/not_mapping_Bacteria.tex and .tsv
-#python why_not_mapping.py /mnt/chr7/data/julia/kallisto_stats $OUTDIR/not_mapping_Bacteria 13 21 25 31
-
-
-
+#python why_not_mapping.py $INDIR/kallisto_stats $OUTDIR/not_mapping_Bacteria 13 21 25 31
 
 ## BLAST some of reads -- select few not mapping, or mapping non-uniquely etc.
 ### this will produce results to /mnt/chr4/mikrobiomy-2/blast_non_mapping/*.fasta, *xml 
@@ -35,6 +50,40 @@ OUTDIR=/mnt/chr4/mikrobiomy-2
 
 ################ De-novo assembly #####################################
 
+#### VELVET ####
+echo `date` "running velvet with run_velvet.sh"
+cat run_velvet.sh 
+sh run_velvet.sh 21 all &
+##sh run_velvet.sh 25 all 
+sh run_velvet.sh 31 all &
+wait
+
+
+sh kallisto_on_assembly.sh 21 velvet_21 all 
+sh kallisto_on_assembly.sh 21 velvet_31 all 
+
+
+
+#### OASES ####
+#echo `date` "running oases with run_oases.sh"
+#cat run_oases.sh 
+#sh run_oases.sh 31 21 all 
+wait
+
+#sh kallisto_on_assembly.sh 21 oases_31_21 "all/mergedAssembly"
+## sh kallisto_on_assembly.sh 21 oases_31_21 "all/all_31" #?
+
+
+wait
+
+
+##mapping to assemblied transcripts (VELVET) with k=21
+#sh kallisto_on_velvet.sh 21 velvet_31 all
+##sh kallisto_on_velvet.sh 31 velvet_31 all
+
+#velvet31 no expcovauto
+#python why_not_mapping.py $OUTDIR/velvet_31/all/kallisto_on_contigs_200/all_21 $OUTDIR/not_mapping_velvet  21
+#python why_not_mapping.py $OUTDIR/velvet_31/all/kallisto_on_contigs_200/all_31 $OUTDIR/not_mapping_velvet31  31
 
 #sh diffexpr_all.sh 21 velvet_31 all
 ####sh diffexpr_all.sh 31 velvet_31 all
@@ -46,9 +95,18 @@ OUTDIR=/mnt/chr4/mikrobiomy-2
 #sh diffexpr_all.sh 21 velvet_31_plain all
 
 ##### METAVELVET #########
+#...
+
+#sh run_metavelvet.sh 21 all &
+#sh run_metavelvet.sh 31 all &
 
 
-sh diffexpr_all.sh 21 metavelvet_31 all
+####metavelvet=velvet31_expcovauto
+#python why_not_mapping.py $OUTDIR/metavelvet_31/all/kallisto_on_contigs_200/all_21 $OUTDIR/not_mapping_metavelvet31_21  21 
+#python why_not_mapping.py $OUTDIR/metavelvet_31/all/kallisto_on_contigs_200/all_31 $OUTDIR/not_mapping_metavelvet31_31  31
+
+
+#sh diffexpr_all.sh 21 metavelvet_31 all
 ###sh diffexpr_all.sh 31 metavelvet_31 all
 
 
@@ -65,7 +123,7 @@ sh diffexpr_all.sh 21 metavelvet_31 all
 
 #sh kallisto_on_megahit.sh 21
 #python why_not_mapping.py $OUTDIR/megahit_results/all/kallisto_on_contigs_200/all_21 $OUTDIR/not_mapping_megahit  21
-sh diffexpr_all.sh 21 megahit_results all
+#sh diffexpr_all.sh 21 megahit_results all
 
 
 

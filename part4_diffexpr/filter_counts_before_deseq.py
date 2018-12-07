@@ -49,11 +49,13 @@ def main():
                 if len(name.split('_')) == 5:   #megahit names
                     length = int(name.split('_')[4].split('=')[1])
                     cov = float(name.split('_')[3].split('=')[1]) ###?????? 
-                
+                else: 
+                    length = None
+                    cov = None 
 
                 if (args.minlen is None) or args.minlen <= length:
                     if (args.maxlen is None) or args.maxlen >= length:
-                        if cov >= 10:
+                        if cov is None or cov >= 10:
                             if len([x for x in line.split('\t')[1:] if float(x)>=5]) >= 3:
                                 ### good for DESEQ 
                                 outfile.write(line)

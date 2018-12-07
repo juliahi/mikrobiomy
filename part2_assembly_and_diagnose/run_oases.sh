@@ -1,43 +1,63 @@
 
-K1=31
-K2=21
+K1=$1
+K2=$2
+NAME=$3
 
-NAME="6685_04-06-2015_depl"
-PATH=$PATH:/home/julia/velvet_1.2.10
+PATH=$PATH:/home/julia
 
 
-OUTDIR=/mnt/chr4/mikrobiomy-2/oases_${K1}_$K2/$NAME
-INDIR=/mnt/chr4/mikrobiomy-2/Wyniki_sekwencjonowania/demultiplexed
+OASESOUTDIR=$OUTDIR/oases_${K1}_$K2/$NAME
 
-mkdir $OUTDIR
-LOG=$OUTDIR/logging.txt
+mkdir -p $OASESOUTDIR
+LOG=$OASESOUTDIR/logging.txt
 
-#velvet_1.2.10/velveth $OUTDIR/${NAME}_$K1 $K1 -fastq -shortPaired -separate $INDIR/${NAME}_1.fq.gz $INDIR/${NAME}_2.fq.gz >> $LOG
-#velvet_1.2.10/velveth $OUTDIR/${NAME}_$K2 $K2 -fastq -shortPaired -separate $INDIR/${NAME}_1.fq.gz $INDIR/${NAME}_2.fq.gz >> $LOG
+##### run velveth
+#INFILES1=`echo $INDIR/*depl_?.fq.gz`
+#~/velvet_1.2.10/velveth $OUTDIR/${NAME}_$K1 $K1 -fastq -shortPaired -separate $INFILES1  >> $LOG
+#~/velvet_1.2.10/velveth $OUTDIR/${NAME}_$K2 $K2 -fastq -shortPaired -separate $INFILES1  >> $LOG
+##### or link
+
+mkdir -p $OASESOUTDIR/${NAME}_$K1
+mkdir -p $OASESOUTDIR/${NAME}_$K2
+ln $OUTDIR/velvet_${K1}/${NAME}/Sequences $OASESOUTDIR/${NAME}_$K1/Sequences
+ln $OUTDIR/velvet_${K1}/${NAME}/Roadmaps $OASESOUTDIR/${NAME}_$K1/Roadmaps
+ln $OUTDIR/velvet_${K2}/${NAME}/Sequences $OASESOUTDIR/${NAME}_$K2/Sequences
+ln $OUTDIR/velvet_${K2}/${NAME}/Roadmaps $OASESOUTDIR/${NAME}_$K2/Roadmaps
+
+wait
+#( ~/velvet_1.2.10/velvetg $OASESOUTDIR/${NAME}_$K1/ -read_trkg yes >> $LOG && ~/oases/oases $OASESOUTDIR/${NAME}_$K1 >> $LOG ) &
+#( ~/velvet_1.2.10/velvetg $OASESOUTDIR/${NAME}_$K2/ -read_trkg yes >> $LOG && ~/oases/oases $OASESOUTDIR/${NAME}_$K2 >> $LOG ) &
 wait
 
-#velvet_1.2.10/velvetg $OUTDIR/$NAME/ -cov_cutoff 5 -ins_length 200 -exp_cov 2  > $OUTDIR/$NAME.txt
-#velvet_1.2.10/velvetg $OUTDIR/${NAME}_$K1/ -read_trkg yes >> $LOG
-#oases/oases $OUTDIR/${NAME}_$K1 >> $LOG
-#velvet_1.2.10/velvetg $OUTDIR/${NAME}_$K2/ -read_trkg yes >> $LOG
-#oases/oases $OUTDIR/${NAME}_$K2 >> $LOG
-wait
+echo `date` "merging" >> $LOG
+#discard too long reads
+MAXLEN=32000
+python filter_transcripts.py $OASESOUTDIR/${NAME}_$K1/transcripts.fa $OASESOUTDIR/${NAME}_$K1/transcripts_$MAXLEN.fa $MAXLEN
+python filter_transcripts.py $OASESOUTDIR/${NAME}_$K2/transcripts.fa $OASESOUTDIR/${NAME}_$K2/transcripts_$MAXLEN.fa $MAXLEN
 
-echo "merging"
-echo "merging" >> $LOG
 
-#velvet_1.2.10/velveth $OUTDIR/mergedAssembly $K2 -long $OUTDIR/$NAME*/transcripts.fa >> $LOG
-#velvet_1.2.10/velvetg $OUTDIR/mergedAssembly -read_trkg yes -conserveLong yes >> $LOG
-#oases/oases $OUTDIR/mergedAssembly -merge yes >> $LOG
+K3=25
+~/velvet_1.2.10/velveth $OASESOUTDIR/mergedAssembly $K3 -long $OASESOUTDIR/$NAME*/transcripts_$MAXLEN.fa >> $LOG
+~/velvet_1.2.10/velvetg $OASESOUTDIR/mergedAssembly -read_trkg yes -conserveLong yes >> $LOG
+~/oases/oases $OASESOUTDIR/mergedAssembly -merge yes >> $LOG
 
+################################### 
+# Result in mergedAssembly/transcripts.fa
+
+
+##### summary 
 
 SUM=$OUTDIR/summary.txt
-echo "MERGED" >> $SUM
-python after_velvet.py -i $OUTDIR/mergedAssembly/stats.txt -o $OUTDIR/hists_merged.pdf -c 1 >> $SUM
-echo "VELVET K=$K1" >> $SUM
-python after_velvet.py -i $OUTDIR/${NAME}_$K1/stats.txt -o $OUTDIR/hists_$K1.pdf -c 1 >> $SUM
-echo "VELVET K=$K2" >> $SUM
-python after_velvet.py -i $OUTDIR/${NAME}_$K2/stats.txt -o $OUTDIR/hists_$K2.pdf -c 1 >> $SUM
+
+for VERSION in $NAME_$K1 mergedAssembly; do
+	SUM=$OASESOUTDIR/summary.txt
+	python select_contigs.py $OASESOUTDIR/$VERSION/transcripts.fa $OASESOUTDIR/$VERSION/long_contigs_$L.fa $L
+	python get_seqlengths_from_fasta.py $OASESOUTDIR/$VERSION/long_contigs_$L.fa $OASESOUTDIR/$VERSION/longcontigs_stats.txt
+	python after_velvet.py -i $OASESOUTDIR/$VERSION/longcontigs_stats.txt -o $OASESOUTDIR/$VERSION/${EXPNAME}_hists_longcontigs.pdf -c 1 >> $SUM
+	python summarize_assemblies.py $OASESOUTDIR/$VERSION/longcontigs_stats.txt 1  
+	cp $OASESOUTDIR/${VERSION}/${EXPNAME}_hists_longcontigs.pdf $OUTDIR/img/${EXPNAME}_${VERSION}_hists_longcontigs.pdf
+done
+
 
 
 
