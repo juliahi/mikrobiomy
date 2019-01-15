@@ -7,7 +7,8 @@ INDEX_FILE=$DIR/kallisto_index_$K.idx
 LOGFILE=$DIR/kallisto.log
 
 #KALLISTO="/home/julia/kallisto_linux-v0.43.0/kallisto"
-KALLISTO="/home/julia/kallisto_kod/src/kallisto"
+KALLISTO="/home/julia/kallisto_kod/build/src/kallisto"
+
 
 ##build index for genome
 if [ ! -f "$INDEX_FILE" ]; then

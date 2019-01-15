@@ -6,6 +6,7 @@ EXPNAME="new_refseq"
 
 
 INDIR=/home/julia/Wyniki_sekwencjonowania
+INDIR="/mnt/chr4/mikrobiomy-2/Wyniki_sekwencjonowania/demultiplexed"
 export INDIR
 
 INFILES1=`ls -m $INDIR/*depl_*1.fq.gz | sort `
@@ -22,28 +23,23 @@ GENOMES_FILE=/home/julia/mikrobiomy_results/new_genomes.fasta
 
 ### prepare reference
 #echo '' > $GENOMES_FILE
-#for file in /home/julia/mikrobiomy_results/new_clark_bacteria/Bacteria/*.fna; do
+#for file in /mnt/chr7/data/julia/new_clark_bacteria/Bacteria/*.fna; do
 #	cat $file >> $GENOMES_FILE
 #done
 #echo 'genome_file prepared'
 
 
-
 ### map with bowtie2
-BOWTIEDIR=/home/julia/bowtie2-2.2.9
+BOWTIEDIR=/home/julia/lib/bowtie2-2.2.9
 
 
 INDEXFILE=$OUTDIR/bowtie2_index
 LOGFILE=$OUTDIR/bowtie2_sensitive.log
-$BOWTIEDIR/bowtie2-build --threads 8 $GENOMES_FILE $INDEXFILE 2>> $LOGFILE >> $LOGFILE
-
-echo "index build"
-exit 
+#$BOWTIEDIR/bowtie2-build --threads 8 $GENOMES_FILE $INDEXFILE 2>> $LOGFILE >> $LOGFILE
+#echo "index build"
 
 
-
-
-for file in $INDIR/*1.fq.gz; do
+for file in $INDIR/*depl_*1.fq.gz; do
     FILENAME=${file%_1.fq.gz}
     probe=`basename $FILENAME`
     OUTNAME=$OUTDIR/${probe}_bowtie

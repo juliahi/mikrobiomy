@@ -5,7 +5,7 @@
 EXPNAME="new_refseq"
 
 
-INDIR=/home/julia/Wyniki_sekwencjonowania
+INDIR="/mnt/chr4/mikrobiomy-2/Wyniki_sekwencjonowania/demultiplexed"
 export INDIR
 
 INFILES1=`ls -m $INDIR/*depl_*1.fq.gz | sort `
@@ -29,16 +29,16 @@ GENOMES_FILE=/home/julia/mikrobiomy_results/new_genomes.fasta
 
 
 ### about reference
-python analyze_split_fasta.py $GENOMES_FILE 
+#python analyze_split_fasta.py $GENOMES_FILE 
 
 
 ### map to new database with kallisto k
 
-#for K in 21 25 13 17; do
-#    print $K
-#    ./run_kallisto_k.sh $K $GENOMES_FILE $OUTDIR
-    #python ../part2_assembly_and_diagnose/why_not_mapping.py $OUTDIR/$NAME $OUTDIR/not_mapping_${EXPNAME}_${NAME} $K
-#done
+for K in 21; do
+    print $K
+    ./run_kallisto_k.sh $K $GENOMES_FILE $OUTDIR
+done
+python ../part2_assembly_and_diagnose/why_not_mapping.py $OUTDIR/$NAME $OUTDIR/not_mapping_${EXPNAME}_${NAME} 21
 
 
 

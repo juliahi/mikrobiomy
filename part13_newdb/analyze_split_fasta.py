@@ -2,7 +2,6 @@
 
 
 #iter over fasta sequences
-from itertools import groupby
 import sys
 import re
 
