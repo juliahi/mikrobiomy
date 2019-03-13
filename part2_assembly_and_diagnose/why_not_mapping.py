@@ -37,7 +37,8 @@ with open(outname+'.tsv', 'w') as outfile:
             for filename in sorted(glob.glob(dirname+("/*_kallisto_%d_out/stats.txt"%k))):
                 
                 stats=Stats(filename)
-                
+                print filename, sum(stats.mapped()), sum(stats.unique())
+
                 mapowalne.append(stats.fraction_mapped())
                 umapowalne.append(stats.fraction_unique())
                 kmers.append(sum(stats.data["kmers1"] + stats.data["kmers2"])/stats.n)
